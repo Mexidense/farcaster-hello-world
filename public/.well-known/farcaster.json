@@ -1,4 +1,9 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjU4MDY5NywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDE1OUI3NGE5OGJkMDZCREJBN2UyNzJFRTA5QTAzZWQ5NTk1NjY3RDUifQ",
+    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItaGVsbG8td29ybGQudmVyY2VsLmFwcCJ9",
+    "signature": "XUY4u0bHNE6JuAtJmS609ZZYdel/kM5yGk2QVsTiZXAWGKyYJsXWyQP7UulI5/Wfo13sbE+fJXbIRHL9ssWDERs="
+  },
   "miniapp": {
     "version": "1",
     "name": "Farcaster - Hello World",
