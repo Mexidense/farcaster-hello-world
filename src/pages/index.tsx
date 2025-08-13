@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { sdk } from '@farcaster/miniapp-sdk'
 import { SignInButton, useProfile } from '@farcaster/auth-kit';
 
 type Profile = {
@@ -31,6 +32,8 @@ export default function Home() {
         setPrimaryAddress(null);
       }
     }
+
+    sdk.actions.ready()
 
     fetchPrimary();
   }, [profile?.fid]);
