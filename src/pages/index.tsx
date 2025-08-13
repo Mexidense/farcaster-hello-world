@@ -33,7 +33,8 @@ export default function Home() {
       }
     }
 
-    sdk.actions.ready()
+    sdk.actions.ready();
+    sdk.actions.addMiniApp();
 
     fetchPrimary();
   }, [profile?.fid]);
