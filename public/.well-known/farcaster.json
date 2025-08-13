@@ -1,0 +1,21 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Farcaster - Hello World",
+    "iconUrl": "https://farcaster-hello-world.vercel.app/images/logo-1024.png",
+    "homeUrl": "https://farcaster-hello-world.vercel.app/",
+    "heroImageUrl": "https://farcaster-hello-world.vercel.app/images/logo-1200-630.png",
+    "splashImageUrl": "https://farcaster-hello-world.vercel.app/images/logo-200.png",
+    "splashBackgroundColor": "#f8fafc",
+    "subtitle": "Simple Farcaster auth demo",
+    "description": "Sign in with Farcaster and view profile properties. No backend.",
+    "screenshotUrls": [
+      "https://farcaster-hello-world.vercel.app/images/ss1.png"
+    ],
+    "primaryCategory": "developer-tools",
+    "tags": ["auth","profile","demo"],
+    "tagline": "AuthKit demo",
+    "ogTitle": "Farcaster Mini-App — AuthKit Demo",
+    "ogDescription": "Sign in with Farcaster and view your profile (FID, username, bio, primary wallet)."
+  }
+}
