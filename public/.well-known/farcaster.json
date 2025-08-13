@@ -15,7 +15,7 @@
     "primaryCategory": "developer-tools",
     "tags": ["auth","profile","demo"],
     "tagline": "AuthKit demo",
-    "ogTitle": "Farcaster Mini-App — AuthKit Demo",
+    "ogTitle": "Farcaster App — AuthKit Demo",
     "ogDescription": "Sign in with Farcaster and view your profile (FID, username, bio, primary wallet)."
   }
 }
