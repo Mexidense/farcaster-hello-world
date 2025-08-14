@@ -12,14 +12,28 @@ interface FarcasterUser {
 export default function Home() {
   const [primaryAddress, setPrimaryAddress] = useState<string | null>(null);
   const [user, setUser] = useState<FarcasterUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
 
   useEffect(() => {
     async function fetchUser() {
-      if (await sdk.isInMiniApp()) {
-        sdk.actions.addMiniApp();
-        const context = await sdk.context;
+      setLoading(true);
+      setError(null);
 
+      try {
+        const inMiniApp = await sdk.isInMiniApp();
+        if (!inMiniApp) {
+          setError('Not running inside Farcaster Mini App.');
+          setLoading(false);
+          
+          return;
+        }
+
+
+        sdk.actions.addMiniApp();
+
+        const context = await sdk.context;
         if (context?.user) {
           setUser({
             fid: context.user.fid,
@@ -28,9 +42,17 @@ export default function Home() {
             pfpUrl: context.user.pfpUrl,
             location: context.user.location?.description || undefined
           });
+
+          return;
         }
+        
+        setError('User context not found.');
+      } catch (e) {
+        setError('Failed to fetch user context.');
+      } finally {
+        sdk.actions.ready();
+        setLoading(false);
       }
-      sdk.actions.ready();
     }
     fetchUser();
   }, []);
@@ -46,7 +68,7 @@ export default function Home() {
           const address = json?.result?.address?.address ?? null;
           setPrimaryAddress(address);
         } catch (e) {
-          console.error('primary address fetch failed', e);
+          setError('Failed to fetch primary address.');
           setPrimaryAddress(null);
         }
       }
@@ -58,8 +80,16 @@ export default function Home() {
     <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-indigo-100 via-sky-100 to-purple-100">
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-6 sm:p-8">
         <h1 className="text-2xl font-semibold mb-4 text-center">Farcaster - Hello World</h1>
-
-        {!user ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+            <p className="text-sm text-slate-600 text-center">Loading user profile...</p>
+          </div>
+        ) : error ? (
+          <div className="space-y-4">
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          </div>
+        ) : !user ? (
           <div className="space-y-4">
             <p className="text-sm text-slate-600 text-center">
               Use in Farcaster Mini App to see your profile and primary address.
