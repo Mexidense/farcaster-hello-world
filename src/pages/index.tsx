@@ -18,33 +18,34 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchPrimary() {
-      try {
-        if (await sdk.isInMiniApp()) {
-          sdk.actions.addMiniApp();
+      if (await sdk.isInMiniApp()) {
+        sdk.actions.addMiniApp();
 
-          const context = await sdk.context;
+        const context = await sdk.context;
 
-          if (context?.user) {
-            setUser({
-              fid: context.user.fid,
-              username: context.user.username || `fid:${context.user.fid}`,
-              displayName: context.user.displayName,
-              pfpUrl: context.user.pfpUrl,
-            });
-          }
+        if (context?.user) {
+          setUser({
+            fid: context.user.fid,
+            username: context.user.username || `fid:${context.user.fid}`,
+            displayName: context.user.displayName,
+            pfpUrl: context.user.pfpUrl,
+          });
         }
 
+        if (user?.fid) {
+          try {
+              const res = await fetch(
+                `https://api.farcaster.xyz/fc/primary-address?fid=${user.fid}&protocol=ethereum`
+              );
+              const json = await res.json();
+              const address = json?.result?.address?.address ?? null;
 
-        const res = await fetch(
-          `https://api.farcaster.xyz/fc/primary-address?fid=${user.fid}&protocol=ethereum`
-        );
-        const json = await res.json();
-        const address = json?.result?.address?.address ?? null;
-
-        setPrimaryAddress(address);
-      } catch (e) {
-        console.error('primary address fetch failed', e);
-        setPrimaryAddress(null);
+            setPrimaryAddress(address);
+          } catch (e) {
+            console.error('primary address fetch failed', e);
+            setPrimaryAddress(null);
+          }
+        }
       }
     }
 
