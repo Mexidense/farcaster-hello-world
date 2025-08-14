@@ -18,10 +18,6 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchPrimary() {
-      if (!user?.fid) {
-        return;
-      }
-
       try {
         if (await sdk.isInMiniApp()) {
           sdk.actions.addMiniApp();
@@ -55,7 +51,7 @@ export default function Home() {
     sdk.actions.ready();
 
     fetchPrimary();
-  }, [user?.fid]);
+  }, []);
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-indigo-100 via-sky-100 to-purple-100">
