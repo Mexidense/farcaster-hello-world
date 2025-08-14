@@ -1,6 +1,5 @@
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sdk } from '@farcaster/miniapp-sdk'
-import { SignInButton, useProfile } from '@farcaster/auth-kit';
 
 interface FarcasterUser {
   fid: number;
@@ -11,18 +10,16 @@ interface FarcasterUser {
 }
 
 export default function Home() {
-  const { isAuthenticated, profile } = useProfile();
   const [primaryAddress, setPrimaryAddress] = useState<string | null>(null);
   const [user, setUser] = useState<FarcasterUser | null>(null);
 
 
   useEffect(() => {
-    async function fetchPrimary() {
+    async function fetchUser() {
       if (await sdk.isInMiniApp()) {
         sdk.actions.addMiniApp();
-
         const context = await sdk.context;
-
+        
         if (context?.user) {
           setUser({
             fid: context.user.fid,
@@ -31,28 +28,30 @@ export default function Home() {
             pfpUrl: context.user.pfpUrl,
           });
         }
+      }
+      sdk.actions.ready();
+    }
+    fetchUser();
+  }, []);
 
-        if (user?.fid) {
-          try {
-              const res = await fetch(
-                `https://api.farcaster.xyz/fc/primary-address?fid=${user.fid}&protocol=ethereum`
-              );
-              const json = await res.json();
-              const address = json?.result?.address?.address ?? null;
-
-            setPrimaryAddress(address);
-          } catch (e) {
-            console.error('primary address fetch failed', e);
-            setPrimaryAddress(null);
-          }
+  useEffect(() => {
+    async function fetchPrimary() {
+      if (user?.fid) {
+        try {
+          const res = await fetch(
+            `https://api.farcaster.xyz/fc/primary-address?fid=${user.fid}&protocol=ethereum`
+          );
+          const json = await res.json();
+          const address = json?.result?.address?.address ?? null;
+          setPrimaryAddress(address);
+        } catch (e) {
+          console.error('primary address fetch failed', e);
+          setPrimaryAddress(null);
         }
       }
     }
-
-    sdk.actions.ready();
-
     fetchPrimary();
-  }, []);
+  }, [user]);
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-indigo-100 via-sky-100 to-purple-100">
