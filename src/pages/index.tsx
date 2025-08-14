@@ -1,36 +1,51 @@
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { sdk } from '@farcaster/miniapp-sdk'
 import { SignInButton, useProfile } from '@farcaster/auth-kit';
 
-type Profile = {
-  fid?: number;
-  username?: string;
+interface FarcasterUser {
+  fid: number;
+  username: string;
   displayName?: string;
   pfpUrl?: string;
   bio?: string;
-};
+}
 
 export default function Home() {
   const { isAuthenticated, profile } = useProfile();
   const [primaryAddress, setPrimaryAddress] = useState<string | null>(null);
+  const [user, setUser] = useState<FarcasterUser | null>(null);
+
 
   useEffect(() => {
     async function fetchPrimary() {
-      if (!profile?.fid) {
+      if (!user?.fid) {
         return;
       }
 
       try {
+        if (await sdk.isInMiniApp()) {
+          sdk.actions.addMiniApp();
+
+          const context = await sdk.context;
+
+          if (context?.user) {
+            setUser({
+              fid: context.user.fid,
+              username: context.user.username || `fid:${context.user.fid}`,
+              displayName: context.user.displayName,
+              pfpUrl: context.user.pfpUrl,
+            });
+          }
+        }
+
+
         const res = await fetch(
-          `https://api.farcaster.xyz/fc/primary-address?fid=${profile.fid}&protocol=ethereum`
+          `https://api.farcaster.xyz/fc/primary-address?fid=${user.fid}&protocol=ethereum`
         );
         const json = await res.json();
         const address = json?.result?.address?.address ?? null;
-        setPrimaryAddress(address);
 
-        if (await sdk.isInMiniApp()) {
-          sdk.actions.addMiniApp();
-        }
+        setPrimaryAddress(address);
       } catch (e) {
         console.error('primary address fetch failed', e);
         setPrimaryAddress(null);
@@ -40,34 +55,30 @@ export default function Home() {
     sdk.actions.ready();
 
     fetchPrimary();
-  }, [profile?.fid]);
+  }, [user?.fid]);
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-indigo-100 via-sky-100 to-purple-100">
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-6 sm:p-8">
         <h1 className="text-2xl font-semibold mb-4 text-center">Farcaster - Hello World</h1>
 
-        {!isAuthenticated ? (
+        {!user ? (
           <div className="space-y-4">
             <p className="text-sm text-slate-600 text-center">
-              Sign in with Farcaster (scan the QR or approve via Warpcast).
+              Use in Farcaster Mini App to see your profile and primary address.
             </p>
-            {/* Simple Sign In button from AuthKit */}
-            <div className="flex justify-center">
-              <SignInButton />
-            </div>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <img
-                src={profile?.pfpUrl ?? '/default-avatar.png'}
+                src={user?.pfpUrl ?? '/default-avatar.png'}
                 alt="avatar"
                 className="w-16 h-16 rounded-full object-cover border border-slate-200"
               />
               <div>
-                <div className="font-medium text-lg">{profile?.displayName ?? '—'}</div>
-                <div className="text-sm text-slate-500">@{profile?.username ?? '—'}</div>
+                <div className="font-medium text-lg">{user?.displayName ?? '—'}</div>
+                <div className="text-sm text-slate-500">@{user?.username ?? '—'}</div>
               </div>
             </div>
 
@@ -76,12 +87,12 @@ export default function Home() {
             <dl className="grid grid-cols-1 gap-2 text-sm">
               <div>
                 <dt className="text-xs text-slate-500">FID</dt>
-                <dd className="font-mono">{profile?.fid ?? '—'}</dd>
+                <dd className="font-mono">{user?.fid ?? '—'}</dd>
               </div>
 
               <div>
                 <dt className="text-xs text-slate-500">Bio</dt>
-                <dd>{profile?.bio ?? '—'}</dd>
+                <dd>{user?.bio ?? '—'}</dd>
               </div>
 
               <div>
