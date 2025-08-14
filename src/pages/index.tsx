@@ -27,6 +27,10 @@ export default function Home() {
         const json = await res.json();
         const address = json?.result?.address?.address ?? null;
         setPrimaryAddress(address);
+
+        if (await sdk.isInMiniApp()) {
+          sdk.actions.addMiniApp();
+        }
       } catch (e) {
         console.error('primary address fetch failed', e);
         setPrimaryAddress(null);
@@ -34,7 +38,6 @@ export default function Home() {
     }
 
     sdk.actions.ready();
-    sdk.actions.addMiniApp();
 
     fetchPrimary();
   }, [profile?.fid]);
