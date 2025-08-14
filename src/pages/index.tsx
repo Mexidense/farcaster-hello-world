@@ -6,7 +6,7 @@ interface FarcasterUser {
   username: string;
   displayName?: string;
   pfpUrl?: string;
-  bio?: string;
+  location?: string;
 }
 
 export default function Home() {
@@ -19,13 +19,14 @@ export default function Home() {
       if (await sdk.isInMiniApp()) {
         sdk.actions.addMiniApp();
         const context = await sdk.context;
-        
+
         if (context?.user) {
           setUser({
             fid: context.user.fid,
             username: context.user.username || `fid:${context.user.fid}`,
             displayName: context.user.displayName,
             pfpUrl: context.user.pfpUrl,
+            location: context.user.location?.description || undefined
           });
         }
       }
@@ -87,8 +88,8 @@ export default function Home() {
               </div>
 
               <div>
-                <dt className="text-xs text-slate-500">Bio</dt>
-                <dd>{user?.bio ?? '—'}</dd>
+                <dt className="text-xs text-slate-500">Location</dt>
+                <dd>{user?.location ?? '—'}</dd>
               </div>
 
               <div>
