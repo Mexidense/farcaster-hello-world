@@ -17,22 +17,41 @@ export default function Home() {
 
 
   useEffect(() => {
+    let cancelled = false;
+    async function pollMiniApp(retries = 5, delay = 400) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const inMiniApp = await sdk.isInMiniApp();
+
+          if (inMiniApp) {
+            return true;
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        await new Promise(res => setTimeout(res, delay));
+      }
+      
+      return false;
+    }
+
     async function fetchUser() {
       setLoading(true);
       setError(null);
 
+      const inMiniApp = await pollMiniApp();
+      if (cancelled) {
+        return;
+      }
+
       try {
-        const inMiniApp = await sdk.isInMiniApp();
         if (!inMiniApp) {
           setError('Not running inside Farcaster Mini App.');
           setLoading(false);
-          
           return;
         }
-
-
         sdk.actions.addMiniApp();
-
         const context = await sdk.context;
         if (context?.user) {
           setUser({
@@ -42,11 +61,9 @@ export default function Home() {
             pfpUrl: context.user.pfpUrl,
             location: context.user.location?.description || undefined
           });
-
-          return;
+        } else {
+          setError('User context not found.');
         }
-        
-        setError('User context not found.');
       } catch (e) {
         setError('Failed to fetch user context.');
       } finally {
@@ -55,6 +72,7 @@ export default function Home() {
       }
     }
     fetchUser();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
